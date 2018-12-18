@@ -7,7 +7,7 @@
 yarn install
 ```
 
-### Hoe to test
+### How to test
 
 ```
 yarn test

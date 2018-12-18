@@ -19,27 +19,17 @@ contract SellOrder {
 
   public onlyPair clause exchange(TXO txo) {
     var owners = this.owners
-
-    // Locked token's owner has been changed
     this.owners = txo.owners
-
-    //  purchasing, and return the change
-    var remaining = txo.values[0].amount - this.state.price
-    var changeTXO = new TXO(txo.owners, new SimpleToken(remainings))
-    txo.values[0].amount = this.state.price
     txo.owners = owners
 
     // A sign of end of contract lifetime
     this.state = null
 
-    // TXOs - "this(=contract,Stateful TXO)" will be embedded by design
-    return [
-      txo,
-      changeTXO
-    ]
+    // "this" will be embedded by default
+    return txo
   }
   private onlyPair(TXO txo){
     require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
-    require(this.values[0].amount < this.state.price, 'Insufficient order')
+    require(this.values[0].amount == this.state.price, 'Just put exactly same amount of paired token')
   }
 }

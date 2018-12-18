@@ -1,10 +1,7 @@
-// contract represents 
-contract Order {
+contract SellOrder {
 
   constructor(SimpleToken input, String pairedTokenName, Float price) {
-    // I intensionally write rough code to appeal how this language is easy-to-write
-    
-    /* TXO of initialization Tx */
+    /* Stateful TXO initialization */
     
     // No need of explicit array
     this.values = input
@@ -15,31 +12,33 @@ contract Order {
         price
     }
     
-    /* Auto complete items */
+    /* Auto embedding items */
     // this.owners = input.owners
     // this.blkNum = undefined
   }
 
-  @beforeFilter onlyPair()
-  pub clause exchange(TXO txo) {
+  public onlyPair clause exchange(TXO txo) {
     var owners = this.owners
+
+    // Locked token's owner has been changed
     this.owners = txo.owners
-    
+
+    //  purchasing, and return the change
     var remaining = txo.values[0].amount - this.state.price
     var changeTXO = new TXO(txo.owners, new SimpleToken(remainings))
     txo.values[0].amount = this.state.price
-  
     txo.owners = owners
+
+    // A sign of end of contract lifetime
     this.state = null
-    
-    // Transaction Outputs of this Tx
+
+    // TXOs - "this(=contract,Stateful TXO)" will be embedded by design
     return [
-      this,
       txo,
       changeTXO
     ]
   }
-  priv onlyPair(TXO txo){
+  private onlyPair(TXO txo){
     require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
     require(this.values[0].amount < this.state.price, 'Insufficient order')
   }

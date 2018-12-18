@@ -1,0 +1,12 @@
+contract SimpleToken {
+
+  clause transfer(address to) {
+    this.owners = [to];
+  }
+
+  clause exchange(SimpleToken token) {
+    var owners = this.owners;
+    this.owners = token.owners;
+    token.owners = owners;
+  }
+}

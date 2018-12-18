@@ -12,7 +12,7 @@ contract Order {
     // No need for keys if you use same name with variables
     this.state = {
         pairedTokenName,
-        pricprice
+        price
     }
     
     /* Auto complete items */
@@ -24,17 +24,23 @@ contract Order {
   pub clause exchange(TXO txo) {
     var owners = this.owners
     this.owners = txo.owners
+    
+    var remaining = txo.values[0].amount - this.state.price
+    var changeTXO = new TXO(txo.owners, new SimpleToken(remainings))
+    txo.values[0].amount = this.state.price
+  
     txo.owners = owners
     this.state = null
     
     // Transaction Outputs of this Tx
     return [
       this,
-      txo
+      txo,
+      changeTXO
     ]
   }
   priv onlyPair(TXO txo){
-    require(txo.values[0].ticker == this.state[0], "Pair doesn't match")
-    require(this.values[0].amount < this.state[1], 'Insufficient order')
+    require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
+    require(this.values[0].amount < this.state.price, 'Insufficient order')
   }
 }

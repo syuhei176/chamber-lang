@@ -1,0 +1,40 @@
+// contract represents 
+contract Order {
+
+  constructor(SimpleToken input, String pairedTokenName, Float price) {
+    // I intensionally write rough code to appeal how this language is easy-to-write
+    
+    /* TXO of initialization Tx */
+    
+    // No need of explicit array
+    this.values = input
+    
+    // No need for keys if you use same name with variables
+    this.state = {
+        pairedTokenName,
+        pricprice
+    }
+    
+    /* Auto complete items */
+    // this.owners = input.owners
+    // this.blkNum = undefined
+  }
+
+  @beforeFilter onlyPair()
+  pub clause exchange(TXO txo) {
+    var owners = this.owners
+    this.owners = txo.owners
+    txo.owners = owners
+    this.state = null
+    
+    // Transaction Outputs of this Tx
+    return [
+      this,
+      txo
+    ]
+  }
+  priv onlyPair(TXO txo){
+    require(txo.values[0].ticker == this.state[0], "Pair doesn't match")
+    require(this.values[0].amount < this.state[1], 'Insufficient order')
+  }
+}

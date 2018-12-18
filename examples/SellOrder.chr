@@ -17,18 +17,17 @@ contract SellOrder {
     // this.blkNum = undefined
   }
 
-  public onlyPair clause exchange(TXO txo) {
+  public clause exchange(TXO txo) onlyPair returns (txo) {
     var owners = this.owners
     this.owners = txo.owners
     txo.owners = owners
 
-    // A sign of end of contract lifetime
+    // Note: A sign of end of contract lifetime
     this.state = null
 
-    // "this" will be embedded by default
-    return txo
+    // Note: "this" as a TXO is gonna be embedded to outputs
   }
-  private onlyPair(TXO txo){
+  modifier onlyPair(TXO txo){
     require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
     require(this.values[0].amount == this.state.price, 'Just put exactly same amount of paired token')
   }

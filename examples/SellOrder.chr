@@ -1,6 +1,6 @@
 contract SellOrder {
 
-  constructor () {
+  constructor (String a) {
     // SimpleToken input, String pairedTokenName, Float price
     /* Stateful TXO initialization */
     
@@ -18,7 +18,7 @@ contract SellOrder {
     // this.blkNum = undefined
   }
 
-  public clause exchange(TXO txo) onlyPair returns (txo) {
+  public clause exchange(TXO txo) onlyPair returns (TXO txo) {
     var owners = this.owners
     this.owners = txo.owners
     txo.owners = owners
@@ -28,8 +28,10 @@ contract SellOrder {
 
     // Note: "this" as a TXO is gonna be embedded to outputs
   }
+
   modifier onlyPair(TXO txo){
     require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
     require(this.values[0].amount == this.state.price, 'Just put exactly same amount of paired token')
   }
+
 }

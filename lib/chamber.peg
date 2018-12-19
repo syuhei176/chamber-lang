@@ -575,6 +575,20 @@ ObjectLiteral
   / "{" __ properties:PropertyNameAndValueList __ "," __ "}" {
        return { type: "ObjectExpression", properties: properties };
      }
+  / "{" __ values:ArgumentList __ "}" {
+       var properties = {}
+       values.map(v=>{
+         properties[v] = v
+       })
+       return { type: "ObjectExpression", properties: properties };
+     }
+  / "{" __ values:ArgumentList __ "," __ "}" {
+       var properties = {}
+       values.map(v=>{
+         properties[v] = v
+       })
+       return { type: "ObjectExpression", properties: properties };
+     }
 PropertyNameAndValueList
   = head:PropertyAssignment tail:(__ "," __ PropertyAssignment)* {
       return buildList(head, tail, 3);

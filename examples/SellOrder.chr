@@ -1,16 +1,17 @@
 contract SellOrder {
 
-  constructor(SimpleToken input, String pairedTokenName, Float price) {
+  constructor () {
+    // SimpleToken input, String pairedTokenName, Float price
     /* Stateful TXO initialization */
     
     // No need of explicit array
-    this.values = input
+    // this.values = input
     
     // No need for keys if you use same name with variables
-    this.state = {
-        pairedTokenName,
-        price
-    }
+    // this.state = {
+    //     pairedTokenName,
+    //     price
+    // }
     
     /* Auto embedding items */
     // this.owners = input.owners

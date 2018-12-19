@@ -55,23 +55,33 @@
 }
 
 Contract
-  = "contract" __ name:String __ "{" clauses:( Clause)* __"}" {
+  = "contract" __ name:String __ "{" constructor:( Constructor)* __ modifiers:( Modifier)* __ clauses:( Clause)* __"}" {
       return {name: name, clauses: clauses}
     }
 
+Constructor
+  = __ "constructor" __ args:Args __ statement:Statement {
+      return {name: "constructor", args: args, statement: statement}
+    }
+
 Clause
-  = __ "clause" __ name:String __ args:Args __  statement:Statement {
+  = __ "public"? __ "clause" __ name:String __ args:Args __ statement:Statement {
+      return {name: name, args: args, statement: statement}
+    }
+
+Modifier
+  = __ "modifier" __ name:String __ args:Args __ statement:Statement {
       return {name: name, args: args, statement: statement}
     }
 
 Args
  = "(" argList:ArgList ")" {
- return argList;
+   return argList;
  }
 
 ArgList
  = arg:Arg "," args:Args {
- return args.concat(arg);
+   return args.concat(arg);
  } / arg:Arg {return [arg]}
  
  Arg

@@ -1,12 +1,12 @@
 contract SimpleToken {
 
-  clause transfer(address to) {
-    this.owners = [to];
+  constructor(){
+    this.owners = [msg.sender]
   }
 
-  clause exchange(SimpleToken token) {
-    var owners = this.owners;
-    this.owners = token.owners;
-    token.owners = owners;
+  clause transfer(address to) {
+    require(this.owners.length == 1, "Owner isn't only 1")
+    require(msg.sender == this.owners, "Owner isn't exactly same as Tx initiator")
+    this.owners = [to];
   }
 }

@@ -55,7 +55,7 @@
 }
 
 Contract
-  = __ "contract" __ name:String __ "{"
+  = __ "contract" __ name:StringForContractName __ "{"
       annotation:(Annotation)* __
       constructor:(Constructor)* __ 
       clauses:(Clause)* __ 
@@ -66,32 +66,48 @@ Contract
 
 // Annotations
 Annotation
-  = Refundable / Continuable / Vaporized / ConfsigRequired / JustsigRequired
+  = Refundable / Continuable / Finish / ConfsigRequired / JustsigRequired
   
 Refundable
-  = __ "@" "refundable" LineTerminator (__ ContinuousAnotation LineTerminator)?
+  = __ "@" "refundable" LineTerminator OptionalAnnotation
     __ constructor:Constructor __  /
     __ clause:Clause __ 
 
 Continuable
-  = __ "@" "continuable" args:Args? LineTerminator (__ ContinuousAnotation LineTerminator)?
+  = __ "@" "continuable" MappingDef OptionalAnnotation
     __ clause:Clause __
 
-Vaporized
-  = __ "@" "vaporized" LineTerminator (__ ContinuousAnotation LineTerminator)?
+Finish
+  = __ "@" "finish" LineTerminator OptionalAnnotation
     __ clause:Clause __
 
 ConfsigRequired
-  = __ "@" "confsig-required" LineTerminator (__ ContinuousAnotation LineTerminator)?
+  = __ "@" "confsig-required" LineTerminator OptionalAnnotation
     __ clause:Clause __
 
 JustsigRequired
-  = __ "@" "justsig-required" LineTerminator (__ ContinuousAnotation LineTerminator)?
+  = __ "@" "justsig-required" LineTerminator OptionalAnnotation
     __ clause:Clause __
-    
-ContinuousAnotation
-  = __ "@" name:String
 
+// Annotation Helper    
+ContinuousAnotation
+  = __ "@" name:StringForAnnotatorName
+
+OptionalAnnotation
+  = (__ ContinuousAnotation LineTerminator)?
+
+MappingDef
+  = __ "(" __ pl2sol:PlasmaToSolidityMappingList __ ")" LineTerminator
+
+PlasmaToSolidityMappingList
+  = mapping:P2SMapping _ "," _ mappings:PlasmaToSolidityMappingList {
+    return mappings.concat(mapping);
+  } / mapping:P2SMapping {return [mapping]}
+
+P2SMapping
+  = plasmaType:StringForTypeName _ name:String _ "=>" _ ethType:StringForTypeName {
+    return { plasmaType: plasmaType, name: name, ethType: ethType }
+  }
 
 // Regular Syntax
 Constructor
@@ -100,13 +116,13 @@ Constructor
     }
 
 Clause
-  = __ "public"? __ "clause" __ name:String __ args:Args __ modifier:ModifierCall? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
+  = __ "public"? __ "clause" __ name:StringForClauseName __ args:Args __ modifier:ModifierCall? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
       return {name: name, args: args, statement: statement}
     }
 
 // Modifiers
 ModifierDeclaration
-  = __ "modifier" __ name:String __ args:Args __ statement:Statement {
+  = __ "modifier" __ name:StringForClauseName __ args:Args __ statement:Statement {
       return {name: name, args: args, statement: statement}
     }
 ModifierCall
@@ -134,7 +150,7 @@ Return
 
 
 Args
- = "(" argList:ArgList ")" {
+ = "(" argList:ArgList? ")" {
    return argList;
  }
 ArgList
@@ -142,7 +158,7 @@ ArgList
    return args.concat(arg);
  } / arg:Arg {return [arg]}
 Arg
- = type:String WhiteSpace name:String {
+ = type:StringForTypeName WhiteSpace name:StringForVarName {
    return {type: type, name: name}
  }
 
@@ -150,7 +166,22 @@ Integer "integer"
   = _ [0-9]+ { return parseInt(text(), 10); }
 
 String "string"
- = _[a-zA-Z-_!?]+ { return text();}
+ = _[a-zA-Z]+ { return text();}
+
+StringForVarName "stringForVarName"
+ = _[a-zA-Z0-9-_!?]+ { return text();}
+
+StringForTypeName "stringForTypeName"
+ = _[a-z0-9-_!?\[\]]+ { return text();}
+
+StringForContractName "stringForContractName"
+ = _[A-Z][a-zA-Z0-9-_!?]+ { return text();}
+
+StringForClauseName "stringForClauseName"
+ = _[a-z][a-zA-Z0-9-_!?]+ { return text();}
+
+StringForAnnotatorName "stringForAnnotatorName"
+ = _[a-z0-9-_!?]+ { return text();}
 
 SourceCharacter
   = .

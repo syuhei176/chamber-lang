@@ -2,18 +2,18 @@
 contract RPS {
 
   @refundable
-  constructor(String a){
-    this.values = input
-    this.state = { pairedTokenName, price }
+  constructor(){
+    this.values = [input]
+    this.state = {}
   }
 
-  @continuable(Strings hashes)
-  public clause commit(TXO txo) returns (TXO txo) {
+  @continuable(bytes hashedHandA => bytes, bytes hashedHandB => bytes)
+  public clause commit(output txo) returns (output txo) {
   }
 
-  @vaporized
+  @finish
   @justsig-required
-  public clause reveal(TXO txo) returns (TXO txo) {
+  public clause reveal(output txo) returns (output txo) {
   }
 
 }

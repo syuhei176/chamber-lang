@@ -1,13 +1,15 @@
 contract SellOrder {
 
   @refundable
-  constructor(String a){
-    // SimpleToken input, String pairedTokenName, Float price
+  constructor(){
     /* Stateful TXO initialization */
-    
-    // No need of explicit array
-    this.values = input
-    
+ 
+    // [implicit args]
+    //   SimpleToken input
+    //   String pairedTokenName
+    //   Float price
+    this.values = [input] 
+
     // No need for keys if you use same name with variables
     this.state = {
       pairedTokenName,
@@ -19,8 +21,8 @@ contract SellOrder {
     // this.blkNum = undefined
   }
 
-  @continuable(Nil null)
-  public clause exchange(TXO txo) onlyPair returns (TXO txo) {
+  @finish
+  public clause exchange(output txo) onlyPair returns (output txo) {
     var owners = this.owners
     this.owners = txo.owners
     txo.owners = owners
@@ -31,7 +33,7 @@ contract SellOrder {
     // Note: "this" as a TXO is gonna be embedded to outputs
   }
 
-  modifier onlyPair(TXO txo){
+  modifier onlyPair(output txo){
     require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
     require(this.values[0].amount == this.state.price, 'Just put exactly same amount of paired token')
   }

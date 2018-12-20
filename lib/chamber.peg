@@ -55,7 +55,7 @@
 }
 
 Contract
-  = "contract" __ name:String __ "{"
+  = __ "contract" __ name:String __ "{"
       annotation:(Annotation)* __
       constructor:(Constructor)* __ 
       clauses:(Clause)* __ 
@@ -65,7 +65,7 @@ Contract
     }
 
 Annotation
-  = Refundable / Continuable
+  = Refundable / Continuable / Vaporized
   
 Refundable
   = __ "@" "refundable" LineTerminator
@@ -74,6 +74,10 @@ Refundable
 
 Continuable
   = __ "@" "continuable" args:Args? LineTerminator
+    __ clause:Clause __
+
+Vaporized
+  = __ "@" "vaporized" LineTerminator
     __ clause:Clause __
 
 
@@ -480,7 +484,7 @@ Zs = [\u0020\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
 BreakToken      = "break"      !IdentifierPart
 CaseToken       = "case"       !IdentifierPart
 CatchToken      = "catch"      !IdentifierPart
-ContractToken      = "contract"      !IdentifierPart
+ContractToken   = "contract"   !IdentifierPart
 ConstToken      = "const"      !IdentifierPart
 ContinueToken   = "continue"   !IdentifierPart
 DebuggerToken   = "debugger"   !IdentifierPart

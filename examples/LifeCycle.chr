@@ -1,39 +1,18 @@
-contract SellOrder {
+// Rock-Paper-Scissors
+contract RPS {
 
   @refundable
   constructor(String a){
-    // SimpleToken input, String pairedTokenName, Float price
-    /* Stateful TXO initialization */
-    
-    // No need of explicit array
     this.values = input
-    
-    // No need for keys if you use same name with variables
-    this.state = {
-      pairedTokenName,
-      price
-    }
-    
-    /* Auto embedding items */
-    // this.owners = input.owners
-    // this.blkNum = undefined
+    this.state = { pairedTokenName, price }
   }
 
-  @continuable(Nil null)
-  public clause exchange(TXO txo) onlyPair returns (TXO txo) {
-    var owners = this.owners
-    this.owners = txo.owners
-    txo.owners = owners
-
-    // Note: A sign of end of contract lifetime
-    this.state = null
-
-    // Note: "this" as a TXO is gonna be embedded to outputs
+  @continuable(Strings hashes)
+  public clause commit(TXO txo) returns (TXO txo) {
   }
 
-  modifier onlyPair(TXO txo){
-    require(txo.values[0].ticker == this.state.pairedTokenName, "Pair doesn't match")
-    require(this.values[0].amount == this.state.price, 'Just put exactly same amount of paired token')
+  @vaporized
+  public clause reveal(TXO txo) returns (TXO txo) {
   }
 
 }

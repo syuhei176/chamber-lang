@@ -1,4 +1,4 @@
-class SellOrder {
+class RPS {
 
   
   

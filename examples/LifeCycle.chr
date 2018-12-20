@@ -12,6 +12,7 @@ contract RPS {
   }
 
   @vaporized
+  @justsig-required
   public clause reveal(TXO txo) returns (TXO txo) {
   }
 

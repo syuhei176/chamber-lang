@@ -64,23 +64,36 @@ Contract
       return {name: name, clauses: clauses}
     }
 
+// Annotations
 Annotation
-  = Refundable / Continuable / Vaporized
+  = Refundable / Continuable / Vaporized / ConfsigRequired / JustsigRequired
   
 Refundable
-  = __ "@" "refundable" LineTerminator
+  = __ "@" "refundable" LineTerminator (__ ContinuousAnotation LineTerminator)?
     __ constructor:Constructor __  /
-    __ clause:Clause __
+    __ clause:Clause __ 
 
 Continuable
-  = __ "@" "continuable" args:Args? LineTerminator
+  = __ "@" "continuable" args:Args? LineTerminator (__ ContinuousAnotation LineTerminator)?
     __ clause:Clause __
 
 Vaporized
-  = __ "@" "vaporized" LineTerminator
+  = __ "@" "vaporized" LineTerminator (__ ContinuousAnotation LineTerminator)?
     __ clause:Clause __
 
+ConfsigRequired
+  = __ "@" "confsig-required" LineTerminator (__ ContinuousAnotation LineTerminator)?
+    __ clause:Clause __
 
+JustsigRequired
+  = __ "@" "justsig-required" LineTerminator (__ ContinuousAnotation LineTerminator)?
+    __ clause:Clause __
+    
+ContinuousAnotation
+  = __ "@" name:String
+
+
+// Regular Syntax
 Constructor
   = __ "constructor" __ args:Args? __ statement:Statement {
       return {name: "constructor", args: args, statement: statement}
@@ -91,6 +104,7 @@ Clause
       return {name: name, args: args, statement: statement}
     }
 
+// Modifiers
 ModifierDeclaration
   = __ "modifier" __ name:String __ args:Args __ statement:Statement {
       return {name: name, args: args, statement: statement}
@@ -100,6 +114,7 @@ ModifierCall
     return { name: name }    
   }
 
+// Returns
 Returns
   = __ "returns" __ {
     return { name: "returns" }
@@ -135,7 +150,7 @@ Integer "integer"
   = _ [0-9]+ { return parseInt(text(), 10); }
 
 String "string"
- = _[a-zA-Z]+ { return text();}
+ = _[a-zA-Z-_!?]+ { return text();}
 
 SourceCharacter
   = .

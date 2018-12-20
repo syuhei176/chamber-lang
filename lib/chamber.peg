@@ -65,10 +65,17 @@ Contract
     }
 
 Annotation
-  = __ "@" name:String "(" ")" "\n"
+  = Refundable / Continuable
+  
+Refundable
+  = __ "@" "refundable" LineTerminator
     __ constructor:Constructor __  /
-    __ clause:Clause __  /
-    __ modifier:ModifierDeclaration __
+    __ clause:Clause __
+
+Continuable
+  = __ "@" "continuable" args:Args? LineTerminator
+    __ clause:Clause __
+
 
 Constructor
   = __ "constructor" __ args:Args? __ statement:Statement {

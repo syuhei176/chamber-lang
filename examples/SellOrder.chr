@@ -1,6 +1,6 @@
 contract SellOrder {
 
-  @refundable()
+  @refundable
   constructor(String a){
     // SimpleToken input, String pairedTokenName, Float price
     /* Stateful TXO initialization */
@@ -19,6 +19,7 @@ contract SellOrder {
     // this.blkNum = undefined
   }
 
+  @continuable(Nil null)
   public clause exchange(TXO txo) onlyPair returns (TXO txo) {
     var owners = this.owners
     this.owners = txo.owners

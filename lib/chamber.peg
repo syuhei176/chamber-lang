@@ -55,28 +55,76 @@
 }
 
 Contract
-  = "contract" __ name:String __ "{" clauses:( Clause)* __"}" {
+  = "contract" __ name:String __ "{"
+      annotation:(Annotation)* __
+      constructor:(Constructor)* __ 
+      clauses:(Clause)* __ 
+      modifiers:(ModifierDeclaration)* __
+    "}" LineTerminator? {
       return {name: name, clauses: clauses}
     }
 
+Annotation
+  = Refundable / Continuable
+  
+Refundable
+  = __ "@" "refundable" LineTerminator
+    __ constructor:Constructor __  /
+    __ clause:Clause __
+
+Continuable
+  = __ "@" "continuable" args:Args? LineTerminator
+    __ clause:Clause __
+
+
+Constructor
+  = __ "constructor" __ args:Args? __ statement:Statement {
+      return {name: "constructor", args: args, statement: statement}
+    }
+
 Clause
-  = __ "clause" __ name:String __ args:Args __  statement:Statement {
+  = __ "public"? __ "clause" __ name:String __ args:Args __ modifier:ModifierCall? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
       return {name: name, args: args, statement: statement}
     }
 
+ModifierDeclaration
+  = __ "modifier" __ name:String __ args:Args __ statement:Statement {
+      return {name: name, args: args, statement: statement}
+    }
+ModifierCall
+  = __ name:String {
+    return { name: name }    
+  }
+
+Returns
+  = __ "returns" __ {
+    return { name: "returns" }
+  }
+ReturnArgs
+  = "(" returnList:ReturnList? ")" {
+    return returnList;
+  }
+ReturnList
+  = _return:Return "," _returns:Returns {
+    return _returns.concat(_return);
+  } / _return:Return {return [_return]}
+Return
+  = type:String WhiteSpace name:String {
+    return {type: type, name: name}
+  }
+
+
 Args
  = "(" argList:ArgList ")" {
- return argList;
+   return argList;
  }
-
 ArgList
  = arg:Arg "," args:Args {
- return args.concat(arg);
+   return args.concat(arg);
  } / arg:Arg {return [arg]}
- 
- Arg
+Arg
  = type:String WhiteSpace name:String {
- return {type: type, name: name}
+   return {type: type, name: name}
  }
 
 Integer "integer"
@@ -101,11 +149,11 @@ LineTerminator
   = [\n\r\u2028\u2029]
 
 LineTerminatorSequence "end of line"
-  = "\n"
-  / "\r\n"
-  / "\r"
-  / "\u2028"
-  / "\u2029"
+  = '\n'
+  / '\r\n'
+  / '\r'
+  / '\u2028'
+  / '\u2029'
 
 Comment "comment"
   = MultiLineComment
@@ -543,6 +591,20 @@ ObjectLiteral
        return { type: "ObjectExpression", properties: properties };
      }
   / "{" __ properties:PropertyNameAndValueList __ "," __ "}" {
+       return { type: "ObjectExpression", properties: properties };
+     }
+  / "{" __ values:ArgumentList __ "}" {
+       var properties = {}
+       values.map(v=>{
+         properties[v] = v
+       })
+       return { type: "ObjectExpression", properties: properties };
+     }
+  / "{" __ values:ArgumentList __ "," __ "}" {
+       var properties = {}
+       values.map(v=>{
+         properties[v] = v
+       })
        return { type: "ObjectExpression", properties: properties };
      }
 PropertyNameAndValueList

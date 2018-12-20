@@ -55,9 +55,20 @@
 }
 
 Contract
-  = "contract" __ name:String __ "{" constructor:(Constructor)* __ clauses:(Clause)* __ modifiers:(ModifierDeclaration)* __ "}" LineTerminator? {
+  = "contract" __ name:String __ "{"
+      annotation:(Annotation)* __
+      constructor:(Constructor)* __ 
+      clauses:(Clause)* __ 
+      modifiers:(ModifierDeclaration)* __
+    "}" LineTerminator? {
       return {name: name, clauses: clauses}
     }
+
+Annotation
+  = __ "@" name:String "(" ")" "\n"
+    __ constructor:Constructor __  /
+    __ clause:Clause __  /
+    __ modifier:ModifierDeclaration __
 
 Constructor
   = __ "constructor" __ args:Args? __ statement:Statement {

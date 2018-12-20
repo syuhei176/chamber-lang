@@ -1,6 +1,7 @@
 contract SellOrder {
 
-  constructor (String a) {
+  @refundable()
+  constructor(String a){
     // SimpleToken input, String pairedTokenName, Float price
     /* Stateful TXO initialization */
     

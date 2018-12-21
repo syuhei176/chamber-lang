@@ -56,12 +56,14 @@
 
 Contract
   = __ "contract" __ name:StringForContractName __ "{"
-      annotation:(Annotation)* __
-      constructor:(Constructor)* __ 
-      clauses:(Clause)* __ 
-      modifiers:(ModifierDeclaration)* __
+      data:(
+        constructor:Constructor /
+        clause:Clause /
+        modifier:ModifierDeclaration /
+        annotation:Annotation
+      )* __
     "}" LineTerminator? {
-      return {name: name, clauses: clauses}
+      return { name: name, clauses: [], data:data }
     }
 
 // Annotations
@@ -117,7 +119,7 @@ Constructor
 
 Clause
   = __ "public"? __ "clause" __ name:StringForClauseName __ args:Args __ modifier:ModifierCall? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
-      return {name: name, args: args, statement: statement}
+      return {name: name, args: args, modifier:modifier, returnArgs:returnArgs, statement: statement}
     }
 
 // Modifiers

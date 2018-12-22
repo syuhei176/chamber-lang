@@ -16,4 +16,6 @@ contract RPS {
   public clause reveal(output txo) returns (output txo) {
   }
 
+  modifier test(){}
+
 }

@@ -56,81 +56,89 @@
 
 Contract
   = __ "contract" __ name:StringForContractName __ "{"
-      data:(
-        constructor:Constructor /
-        clause:Clause /
-        modifier:ModifierDeclaration /
-        annotation:Annotation
-      )* __
+      __ constructor:Constructor
+      __ clauses:(__ clause:Clause { return clause })*
+      __ modifiers:(__ modifier:ModifierDeclaration { return modifier })*
     "}" LineTerminator? {
-      return { name: name, clauses: [], data:data }
+      return { name: name, constructor: constructor, clauses: clauses, modifiers: modifiers }
     }
+
+
+// Regular Syntax
+Constructor
+  = 
+  annotations:Annotations?
+  __ "constructor" __ args:Args? __ statement:Statement {
+      return { annotations:annotations, name: "constructor", args: args, statement: statement}
+    }
+
+Clause
+  = 
+  annotations:Annotations?
+  __ "public"? __ "clause" __ name:StringForClauseName __ args:Args __ modifier:StringForClauseName? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
+      return { annotations:annotations, name: name, args: args, modifier:modifier, returnArgs:returnArgs, statement: statement}
+    }
+
 
 // Annotations
 Annotation
   = Refundable / Continuable / Finish / ConfsigRequired / JustsigRequired
-  
+
+Annotations
+  = head:Annotation tail:(__ Annotation)* {
+      var result = [head];
+      for (var i = 0; i < tail.length; i++) {
+        result.push(tail[i][1]);
+      }
+      return result;
+    }
+
 Refundable
-  = __ "@" "refundable" LineTerminator OptionalAnnotation
-    __ constructor:Constructor __  /
-    __ clause:Clause __ 
+  = __ "@" name:"refundable" LineTerminator {
+    return { name: name }
+  }
 
 Continuable
-  = __ "@" "continuable" MappingDef OptionalAnnotation
-    __ clause:Clause __
+  = __ "@" name:"continuable" args:MappingDef {
+    return { name: name, args:args }
+  }
 
 Finish
-  = __ "@" "finish" LineTerminator OptionalAnnotation
-    __ clause:Clause __
+  = __ "@" name:"finish" LineTerminator {
+    return { name: name }
+  }
 
 ConfsigRequired
-  = __ "@" "confsig-required" LineTerminator OptionalAnnotation
-    __ clause:Clause __
+  = __ "@" name:"confsig-required" LineTerminator {
+    return { name: name }
+  }
 
 JustsigRequired
-  = __ "@" "justsig-required" LineTerminator OptionalAnnotation
-    __ clause:Clause __
-
+  = __ "@" name:"justsig-required" LineTerminator {
+    return { name: name }
+  }
+  
 // Annotation Helper    
-ContinuousAnotation
-  = __ "@" name:StringForAnnotatorName
-
-OptionalAnnotation
-  = (__ ContinuousAnotation LineTerminator)?
-
 MappingDef
   = __ "(" __ pl2sol:PlasmaToSolidityMappingList __ ")" LineTerminator
 
 PlasmaToSolidityMappingList
-  = mapping:P2SMapping _ "," _ mappings:PlasmaToSolidityMappingList {
+  = mapping:PlasmaToSolidityMapping _ "," _ mappings:PlasmaToSolidityMappingList {
     return mappings.concat(mapping);
-  } / mapping:P2SMapping {return [mapping]}
+  } / mapping:PlasmaToSolidityMapping {return [mapping]}
 
-P2SMapping
+PlasmaToSolidityMapping
   = plasmaType:StringForTypeName _ name:String _ "=>" _ ethType:StringForTypeName {
     return { plasmaType: plasmaType, name: name, ethType: ethType }
   }
 
-// Regular Syntax
-Constructor
-  = __ "constructor" __ args:Args? __ statement:Statement {
-      return {name: "constructor", args: args, statement: statement}
-    }
 
-Clause
-  = __ "public"? __ "clause" __ name:StringForClauseName __ args:Args __ modifier:ModifierCall? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
-      return {name: name, args: args, modifier:modifier, returnArgs:returnArgs, statement: statement}
-    }
 
 // Modifiers
 ModifierDeclaration
-  = __ "modifier" __ name:StringForClauseName __ args:Args __ statement:Statement {
-      return {name: name, args: args, statement: statement}
+  = __ "modifier" __ name:StringForClauseName __ args:Args __ statement:Statement __ {
+      return { name: name, args: args, statement: statement }
     }
-ModifierCall
-  = __ name:String {
-    return { name: name }    
-  }
 
 // Returns
 Returns

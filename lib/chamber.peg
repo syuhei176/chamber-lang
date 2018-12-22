@@ -120,7 +120,7 @@ JustsigRequired
   
 // Annotation Helper    
 MappingDef
-  = __ "(" __ pl2sol:PlasmaToSolidityMappingList __ ")" LineTerminator
+  = __ "(" __ pl2sol:PlasmaToSolidityMappingList __ ")" LineTerminator { return pl2sol }
 
 PlasmaToSolidityMappingList
   = mapping:PlasmaToSolidityMapping _ "," _ mappings:PlasmaToSolidityMappingList {
@@ -129,7 +129,7 @@ PlasmaToSolidityMappingList
 
 PlasmaToSolidityMapping
   = plasmaType:StringForTypeName _ name:String _ "=>" _ ethType:StringForTypeName {
-    return { plasmaType: plasmaType, name: name, ethType: ethType }
+    return { plasmaType: plasmaType, plasmaValue: name, ethType: ethType }
   }
 
 

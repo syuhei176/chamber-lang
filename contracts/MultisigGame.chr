@@ -1,0 +1,20 @@
+contract MultisigGame {
+
+  @refundable
+  constructor(){
+    this.values = [input]
+    this.state = {}
+  }
+
+  @continuable(bytes hashedHandA => bytes, bytes hashedHandB => bytes)
+  public clause commit(output txo) returns (output txo) {
+  }
+
+  @finish
+  @justsig-required
+  public clause reveal(output txo) returns (output txo) {
+  }
+
+  modifier test(){}
+
+}

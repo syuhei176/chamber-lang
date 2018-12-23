@@ -1,13 +1,12 @@
 class SimpleToken {
+ 
+  
+  /**
+ * @description SimpleToken.transfer
+ */
+ static function transfer(tx) {
 
-  
-    /**
-    * @description SimpleToken.transfer
-    */
-    static function transfer(tx) {
-  
-    }
-  
-  
   }
-  
+
+
+}

@@ -1,5 +1,5 @@
-contract SimpleToken {
-
+ contract SimpleToken {
+ 
   constructor(){
     this.owners = [msg.sender]
   }
@@ -9,4 +9,4 @@ contract SimpleToken {
     require(msg.sender == this.owners, "Owner isn't exactly same as Tx initiator")
     this.owners = [to];
   }
-}
+ } 

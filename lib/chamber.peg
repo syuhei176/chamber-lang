@@ -55,47 +55,92 @@
 }
 
 Contract
-  = "contract" __ name:String __ "{"
-      annotation:(Annotation)* __
-      constructor:(Constructor)* __ 
-      clauses:(Clause)* __ 
-      modifiers:(ModifierDeclaration)* __
+  = __ "contract" __ name:StringForContractName __ "{"
+      __ constructor:Constructor
+      __ clauses:(__ clause:Clause { return clause })*
+      __ modifiers:(__ modifier:ModifierDeclaration { return modifier })*
     "}" LineTerminator? {
-      return {name: name, clauses: clauses}
+      return { name: name, constructor: constructor, clauses: clauses, modifiers: modifiers }
     }
 
-Annotation
-  = Refundable / Continuable
-  
-Refundable
-  = __ "@" "refundable" LineTerminator
-    __ constructor:Constructor __  /
-    __ clause:Clause __
 
-Continuable
-  = __ "@" "continuable" args:Args? LineTerminator
-    __ clause:Clause __
-
-
+// Regular Syntax
 Constructor
-  = __ "constructor" __ args:Args? __ statement:Statement {
-      return {name: "constructor", args: args, statement: statement}
+  = 
+  annotations:Annotations?
+  __ "constructor" __ args:Args? __ statement:Statement {
+      return { annotations:annotations, name: "constructor", args: args, statement: statement}
     }
 
 Clause
-  = __ "public"? __ "clause" __ name:String __ args:Args __ modifier:ModifierCall? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
-      return {name: name, args: args, statement: statement}
+  = 
+  annotations:Annotations?
+  __ "public"? __ "clause" __ name:StringForClauseName __ args:Args __ modifier:StringForClauseName? __ returns:Returns? __ returnArgs:ReturnArgs? __ statement:Statement {
+      return { annotations:annotations, name: name, args: args, modifier:modifier, returnArgs:returnArgs, statement: statement}
     }
 
-ModifierDeclaration
-  = __ "modifier" __ name:String __ args:Args __ statement:Statement {
-      return {name: name, args: args, statement: statement}
+
+// Annotations
+Annotation
+  = Refundable / Continuable / Finish / ConfsigRequired / JustsigRequired
+
+Annotations
+  = head:Annotation tail:(__ Annotation)* {
+      var result = [head];
+      for (var i = 0; i < tail.length; i++) {
+        result.push(tail[i][1]);
+      }
+      return result;
     }
-ModifierCall
-  = __ name:String {
-    return { name: name }    
+
+Refundable
+  = __ "@" name:"refundable" LineTerminator {
+    return { name: name }
   }
 
+Continuable
+  = __ "@" name:"continuable" args:MappingDef {
+    return { name: name, args:args }
+  }
+
+Finish
+  = __ "@" name:"finish" LineTerminator {
+    return { name: name }
+  }
+
+ConfsigRequired
+  = __ "@" name:"confsig-required" LineTerminator {
+    return { name: name }
+  }
+
+JustsigRequired
+  = __ "@" name:"justsig-required" LineTerminator {
+    return { name: name }
+  }
+  
+// Annotation Helper    
+MappingDef
+  = __ "(" __ pl2sol:PlasmaToSolidityMappingList __ ")" LineTerminator { return pl2sol }
+
+PlasmaToSolidityMappingList
+  = mapping:PlasmaToSolidityMapping _ "," _ mappings:PlasmaToSolidityMappingList {
+    return mappings.concat(mapping);
+  } / mapping:PlasmaToSolidityMapping {return [mapping]}
+
+PlasmaToSolidityMapping
+  = plasmaType:StringForTypeName _ name:String _ "=>" _ ethType:StringForTypeName {
+    return { plasmaType: plasmaType, plasmaValue: name, ethType: ethType }
+  }
+
+
+
+// Modifiers
+ModifierDeclaration
+  = __ "modifier" __ name:StringForClauseName __ args:Args __ statement:Statement __ {
+      return { name: name, args: args, statement: statement }
+    }
+
+// Returns
 Returns
   = __ "returns" __ {
     return { name: "returns" }
@@ -115,7 +160,7 @@ Return
 
 
 Args
- = "(" argList:ArgList ")" {
+ = "(" argList:ArgList? ")" {
    return argList;
  }
 ArgList
@@ -123,7 +168,7 @@ ArgList
    return args.concat(arg);
  } / arg:Arg {return [arg]}
 Arg
- = type:String WhiteSpace name:String {
+ = type:StringForTypeName WhiteSpace name:StringForVarName {
    return {type: type, name: name}
  }
 
@@ -132,6 +177,21 @@ Integer "integer"
 
 String "string"
  = _[a-zA-Z]+ { return text();}
+
+StringForVarName "stringForVarName"
+ = _[a-zA-Z0-9-_!?]+ { return text();}
+
+StringForTypeName "stringForTypeName"
+ = _[a-z0-9-_!?\[\]]+ { return text();}
+
+StringForContractName "stringForContractName"
+ = _[A-Z][a-zA-Z0-9-_!?]+ { return text();}
+
+StringForClauseName "stringForClauseName"
+ = _[a-z][a-zA-Z0-9-_!?]+ { return text();}
+
+StringForAnnotatorName "stringForAnnotatorName"
+ = _[a-z0-9-_!?]+ { return text();}
 
 SourceCharacter
   = .
@@ -480,7 +540,7 @@ Zs = [\u0020\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
 BreakToken      = "break"      !IdentifierPart
 CaseToken       = "case"       !IdentifierPart
 CatchToken      = "catch"      !IdentifierPart
-ContractToken      = "contract"      !IdentifierPart
+ContractToken   = "contract"   !IdentifierPart
 ConstToken      = "const"      !IdentifierPart
 ContinueToken   = "continue"   !IdentifierPart
 DebuggerToken   = "debugger"   !IdentifierPart

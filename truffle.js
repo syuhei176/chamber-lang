@@ -29,5 +29,11 @@ module.exports = {
       network_id: "*",
       gas: 6700000,
       gasPrice: 10000000000,
+    },
+    compilers: {
+      solc: {
+        version: "undefined"
+      }
     }
+  
   }};

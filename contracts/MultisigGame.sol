@@ -66,6 +66,7 @@ contract MultisigGame {
     require(userB == ECRecovery.recover(merkleHash, ByteUtils.slice(confsigs, 65, 65)));
   }
 
+  // Warning: Unused function parameter
   function reveal(TxDecoder.Tx transaction, bytes32 txHash, bytes sigs)
     internal
     pure
@@ -76,7 +77,7 @@ contract MultisigGame {
     bytes32 p2 = ByteUtils.bytesToBytes32(RLP.toBytes(transaction.args[1]));
     address userA = transaction.inputs[0].owners[0];
     address userB = transaction.inputs[0].owners[1];
-    require(keccak256(p1) == h1 && keccak256(p2) == h2);
+    require(keccak256(abi.encodePacked(p1)) == h1 && keccak256(abi.encodePacked(p2)) == h2);
     // p1 p2
     uint r1 = uint8(p1) % 3;
     uint r2 = uint8(p2) % 3;
@@ -98,8 +99,8 @@ contract MultisigGame {
   {
     TxDecoder.TxState memory input = transaction.inputs[0];
     TxDecoder.TxState memory output = transaction.outputs[0];
-    var appState = getAppStateTictactoe(input.state);
-    var nextAppState = getAppStateTictactoe(output.state);
+    AppStateTictactoe memory appState = getAppStateTictactoe(input.state);
+    AppStateTictactoe memory nextAppState = getAppStateTictactoe(output.state);
     require(appState.currentPlayer == input.owners[0]);
     require(appState.nextPlayer == output.owners[0]);
     uint pos = RLP.toUint(transaction.args[0]);
@@ -140,8 +141,9 @@ contract MultisigGame {
       tmpMap[i] = tmpMap[i - 1] / 3;
     }
     for(i = 0; i < 9; i++) {
-      for(uint8 j = i + 1; j < 9; j++) {
-        tmpMap[i] -= tmpMap[j] * (3**j);
+      for(uint256 j = i + 1; j < 9; j++) {
+        uint256 powedNum = 3**j;//for killing pow-overflow-ish warning
+        tmpMap[i] -= tmpMap[j] * powedNum;
       }
     }
     if(tmpMap[0] != 0 && tmpMap[0] == tmpMap[1] && tmpMap[1] == tmpMap[2]) {

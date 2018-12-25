@@ -35,13 +35,16 @@ library TxVerification {
         exchange(transaction);
       }
     } else {
+      // Warning: Function declared as view, but this expression (potentially) modifies the state and thus requires non-payable (the default) or payable.
+      // Warning: Return value of low-level calls not used.
       transaction.verifier.call(
         'verify',
         txBytes,
         txHash,
         merkleHash,
         sigs,
-        confsigs);
+        confsigs
+      );
     }
   }
 

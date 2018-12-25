@@ -117,7 +117,7 @@ library TxDecoder {
     pure
     returns (Tx)
   {
-    var txList = RLP.toList(RLP.toRlpItem(txByte));
+    RLP.RLPItem[] memory txList = RLP.toList(RLP.toRlpItem(txByte));
     return Tx({
       verifier: RLP.toAddress(txList[0]),
       label: RLP.toUint(txList[1]),

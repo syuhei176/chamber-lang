@@ -1,17 +1,17 @@
-# plasma-lang
+# OVM online compiler
 
 
 ### How to install
 
 ```
-yarn install
+npm i
 ```
 
-truffle must be 4.1.14
 
-### How to test
+### How to run
 
 ```
-yarn test
-yarn test:multisig
+npm start
 ```
+
+open http:localhost:1234

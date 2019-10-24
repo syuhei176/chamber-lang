@@ -1,0 +1,8 @@
+pragma solidity ^0.4.24;
+
+contract <%= claim.dec.predicate %> {
+  function isValidChallenge(Property property, bytes challengeInput, Property challenge) public {
+    // check challenge is valid
+    <%= JSON.stringify(claim.statement) %>
+  }
+}

@@ -6,6 +6,14 @@
 
 }
 
+Declation
+  = dec:Decider _ ":=" _ s:Statement _ {
+    return {
+      dec: dec,
+      statement: s
+    }
+  }
+
 Statement
   = expr:Expression tail:(Expression)*
 
@@ -16,7 +24,7 @@ Decider
   = name:String _ "(" arg:String args:("," String)* ")" {
   return {
     predicate: name,
-    input: arg
+    input: [arg].concat(args)
   }
 }
   
@@ -49,7 +57,5 @@ Integer "integer"
 String "string"
   = _ [a-zA-Z]+ { return text(); }
 
-
-
 _ "whitespace"
-  = [ \t\n\r]*
+  =  [ \\t\\n\\r]*

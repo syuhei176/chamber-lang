@@ -1,0 +1,61 @@
+// OVM language grammar
+// ==========================
+//
+
+{
+
+}
+
+Declation
+  = dec:Decider _ ":=" _ s:Statement _ {
+    return {
+      dec: dec,
+      statement: s
+    }
+  }
+
+Statement
+  = expr:Expression tail:(Expression)*
+
+Predicate
+  = UniversalQuantifier / Decider
+
+Decider
+  = name:String _ "(" arg:String args:("," String)* ")" {
+  return {
+    predicate: name,
+    input: [arg].concat(args)
+  }
+}
+  
+UniversalQuantifier
+  = "for" _ "all" _ v:String _ "such" _ "that" _ V:String _ ":" _ property:Expression {
+    return {
+      predicate: "ForAllSuchThat",
+      inputs: [
+        V,
+        property
+      ]
+    }
+  }
+  
+Expression
+  = head:Predicate tail:(_ ("and" / "or") _ Predicate)* {
+      if(tail.length > 0) {
+        return {
+          predicate: tail[0][1],
+          input: [head, tail[0][3]]
+        }
+      } else {
+        return head;
+      }
+    }
+
+Integer "integer"
+  = _ [0-9]+ { return parseInt(text(), 10); }
+
+String "string"
+  = _ [a-zA-Z]+ { return text(); }
+
+_ "whitespace"
+  =  [ \\t\\n\\r]*

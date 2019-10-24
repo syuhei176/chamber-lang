@@ -5,13 +5,15 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html --out-dir ghpage",
     "test": "mocha",
     "test:multisig": "truffle test test/MultisigGame.test.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cryptoeconomicslab/chamber-core": "^1.1.0",
+    "codemirror": "^5.49.2",
     "ejs": "^2.6.1",
     "ethereumjs-util": "^6.0.0",
     "pegjs": "^0.10.0",
@@ -20,6 +22,12 @@
     "truffle": "4.1.14"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
-  }
+    "mocha": "^5.2.0",
+    "parcel-bundler": "^1.12.4",
+    "parcel-plugin-text": "^0.9.5"
+  },
+  "extensions": [
+    "peg",
+    "ejs"
+  ]
 }

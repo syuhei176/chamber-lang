@@ -5,6 +5,5 @@ yarn-error.log
 coverage
 .db/*
 .env
-
 .cache
 dist

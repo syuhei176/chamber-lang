@@ -1,0 +1,4 @@
+def ownership(owner) :=
+  with Tx(su) as tx {
+    SignedBy(tx, owner)
+  }

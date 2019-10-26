@@ -1,0 +1,6 @@
+def checkpoint(B, C) := 
+for b in LessThan(B) {
+  for su in SU(b, C) {
+    su()
+  }
+}

@@ -2,17 +2,14 @@ const CodeMirror = require('codemirror')
 require('codemirror/lib/codemirror.css')
 require('codemirror/theme/abcdef.css')
 require('codemirror/theme/ttcn.css')
-const claimCompile = require('../lib')
+const OVMCompiler = require('../lib')
 
 function main() {
   const codearea = document.getElementById('codearea')
   const solidity = document.getElementById('solidity')
   const messageDom = document.getElementById('message')
-  codearea.textContent =
-    'checkpoint(B, C) := \n' +
-    'for all b such that B:\n' +
-    '  for all su such that C:\n' +
-    '    IsDeprecated(su)\n'
+  const exampleSelectDom = document.getElementById('example-select')
+  codearea.textContent = OVMCompiler.examples.checkpoint
   const inputArea = CodeMirror.fromTextArea(codearea, {
     lineNumbers: true,
     theme: 'ttcn'
@@ -25,12 +22,17 @@ function main() {
     try {
       compile(instance)
     } catch (e) {
+      console.error(e)
       messageDom.innerText = 'parse error'
     }
   })
   compile(inputArea)
+  exampleSelectDom.addEventListener('change', e => {
+    const exampleName = e.target.value
+    inputArea.setValue(OVMCompiler.examples[exampleName])
+  })
   function compile(instance) {
-    const result = claimCompile(instance.getValue(), 'sol')
+    const result = OVMCompiler.compile(instance.getValue(), 'sol')
     outputArea.setValue(result)
     messageDom.innerText = 'succeed'
   }

@@ -6,8 +6,11 @@
 
 }
 
+Program
+  = Declation*
+
 Declation
-  = dec:Decider _ ":=" _ s:Statement _ {
+  = "def" _ dec:Decider _ ":=" _ s:Statement _ {
     return {
       dec: dec,
       statement: s
@@ -18,29 +21,68 @@ Statement
   = expr:Expression tail:(Expression)*
 
 Predicate
-  = UniversalQuantifier / Decider
+  = UniversalQuantifier / ThereExistsQuantifier / NotPredicate / Decider
+
+NoArgs
+  = "(" _ ")" {
+    return []
+  }
+
+ArgsExist
+  = "(" arg:Arg args:("," _ Arg)* ")" {
+    return [arg].concat(args)
+  }
+
+Args
+  = ArgsExist / NoArgs
+
+Arg
+  = Object / String
 
 Decider
-  = name:String _ "(" arg:String args:("," String)* ")" {
+  = name:String _ args:Args {
   return {
     predicate: name,
-    input: [arg].concat(args)
+    input: args
   }
 }
   
 UniversalQuantifier
-  = "for" _ "all" _ v:String _ "such" _ "that" _ V:String _ ":" _ property:Expression {
+  = "for" _ v:String _ "in" _ V:Decider _ "{" _ property:Expression _ "}" {
     return {
       predicate: "ForAllSuchThat",
       inputs: [
         V,
+        v,
         property
       ]
     }
   }
-  
+
+ThereExistsQuantifier
+  = "with" _ Q:Decider _ "as" _ v:String _ "{" _ property:Expression _ "}" {
+    return {
+      predicate: "ThereExistsSuchThat",
+      inputs: [
+        Q,
+        v,
+        property
+      ]
+    }
+  }
+
+NotPredicate
+  = "!" _ property:Expression {
+    return {
+      predicate: "Not",
+      inputs: [
+        property
+      ]
+    }
+  }
+
 Expression
-  = head:Predicate tail:(_ ("and" / "or") _ Predicate)* {
+  = head:Factor tail:(_ ("and" / "or") _ Factor)* {
       if(tail.length > 0) {
         return {
           predicate: tail[0][1],
@@ -51,11 +93,24 @@ Expression
       }
     }
 
+Factor
+  = "(" _ expr:Expression _ ")" { return expr; }
+  / Predicate
+
 Integer "integer"
   = _ [0-9]+ { return parseInt(text(), 10); }
 
+Object
+  = parent:String "." child:String {
+    return {
+      syntax: "bind",
+      parent: parent,
+      child: child
+    }
+  }
+
 String "string"
-  = _ [a-zA-Z]+ { return text(); }
+  = _ [a-zA-Z_]+ { return text(); }
 
 _ "whitespace"
   =  [ \\t\\n\\r]*

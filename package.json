@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html --out-dir ghpage",
+    "build": "parcel build src/index.html --out-dir docs",
     "test": "mocha",
     "test:multisig": "truffle test test/MultisigGame.test.js"
   },

@@ -16,7 +16,8 @@ function main() {
   })
   const outputArea = CodeMirror.fromTextArea(solidity, {
     lineNumbers: true,
-    theme: 'abcdef'
+    theme: 'abcdef',
+    readOnly: true
   })
   inputArea.on('change', function(instance) {
     try {

@@ -1,8 +1,13 @@
 pragma solidity ^0.4.24;
 
 contract <%= claim.dec.predicate %> {
-  function isValidChallenge(Property property, bytes challengeInput, Property challenge) public {
+  function isValidChallenge(Property memory property, bytes challengeInput, Property memory challenge) public {
     // check challenge is valid
     <%= JSON.stringify(claim.statement) %>
+  }
+
+  function decideTrue(Property memory property, bytes[] memory witness) public {
+    // check property is true
+    UAC.decide(keccak256(abi.encode(property)), true)
   }
 }

@@ -30,7 +30,7 @@ NoArgs
 
 ArgsExist
   = "(" arg:Arg args:("," _ Arg)* ")" {
-    return [arg].concat(args)
+    return [arg].concat(args.map((a) => a[2]))
   }
 
 Args

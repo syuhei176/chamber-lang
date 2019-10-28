@@ -6,7 +6,7 @@ def order(maker, c_token, c_amount, min_block_number) :=
       and checkAmount(c_su.range, c_amount)
       and gte(c_su.block_number, min_block_number)
       and assert(c_su.new_owner, maker)
-      and (withdraw(c_su) and SignedBy(tx, owner)) or (!withdraw(c_su) and SignedBy(tx, prev_owner))
+      and ((withdraw(c_su) and SignedBy(tx, owner)) or (!withdraw(c_su) and SignedBy(tx, prev_owner)))
     }
   }
 

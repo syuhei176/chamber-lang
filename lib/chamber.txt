@@ -43,7 +43,7 @@ Decider
   = name:String _ args:Args {
   return {
     predicate: name,
-    input: args
+    inputs: args
   }
 }
   
@@ -72,7 +72,7 @@ ThereExistsQuantifier
   }
 
 NotPredicate
-  = "!" _ property:Expression {
+  = "!" _ property:Factor {
     return {
       predicate: "Not",
       inputs: [
@@ -83,10 +83,13 @@ NotPredicate
 
 Expression
   = head:Factor tail:(_ ("and" / "or") _ Factor)* {
+      console.log(tail)
       if(tail.length > 0) {
+        const op = tail[0][1]
+        const items = tail.map((t) => t[3])
         return {
-          predicate: tail[0][1],
-          input: [head, tail[0][3]]
+          predicate: op == "and" ? "And" : "Or",
+          inputs: [head].concat(items)
         }
       } else {
         return head;
@@ -94,7 +97,7 @@ Expression
     }
 
 Factor
-  = "(" _ expr:Expression _ ")" { return expr; }
+  = "(" _ expr:Expression _ ")" { return expr }
   / Predicate
 
 Integer "integer"

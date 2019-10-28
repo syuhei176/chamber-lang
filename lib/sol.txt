@@ -1,13 +1,36 @@
 pragma solidity ^0.4.24;
 
-contract <%= claim.dec.predicate %> {
+<%
+  for(var i = 0;i < properties.length;i++) {
+    let property = properties[i]
+%>
+contract <%= property.dec.predicate %> {
+  <% if(!!property.statement.isValidChallenge) { %>
   function isValidChallenge(Property memory property, bytes challengeInput, Property memory challenge) public {
     // check challenge is valid
-    <%= JSON.stringify(claim.statement) %>
+    // <%= property.statement.isValidChallenge.predicate %>
+    // <%= JSON.stringify(property.statement.isValidChallenge.inputs) %>
   }
+  <% } %>
 
   function decideTrue(Property memory property, bytes[] memory witness) public {
+    var propertyHash = keccak256(abi.encode(property))
     // check property is true
-    UAC.decide(keccak256(abi.encode(property)), true)
+    <% if(property.statement.predicate == 'And') { %>
+      // check And
+      require(<%= JSON.stringify(property.statement.inputs) %>)
+    <% } else if(property.statement.predicate == 'ThereExistsSuchThat') { %>
+      // check ThereExistsSuchThat
+      require(<%= JSON.stringify(property.statement.inputs) %>)
+    <% } else if(property.statement.predicate == 'Or') { %>
+      // check Or
+      require(<%= JSON.stringify(property.statement.inputs) %>)
+    <% } else { %>
+      var claim = UAC.getDecision(propertyHash)
+      assert(propertyHash.disputePeriod > block.now)
+    <% } %>
+    UAC.decide(propertyHash, true)
   }
 }
+
+<% } %>

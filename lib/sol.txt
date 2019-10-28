@@ -1,30 +1,100 @@
 pragma solidity ^0.4.24;
 
 <%
+function getInputs(item) {
+  let str = ""
+  for(var k=0;k < item.dec.inputs.length;k++){
+    if(item.dec.inputs[k] >= 0) {
+      str += "property.inputs[" + item.dec.inputs[k] + "]"
+    }else{
+      str += "challengeInput"
+    }
+    if(k < item.dec.inputs.length - 1) {
+      str += ","
+    }
+  }
+  return str
+}
+%>
+
+<%
   for(var i = 0;i < properties.length;i++) {
     let property = properties[i]
 %>
+/**
+ * <%= property.dec.predicate %>(<%= property.dec.inputDefs %>)
+ */
 contract <%= property.dec.predicate %> {
   <% if(!!property.statement.isValidChallenge) { %>
+  // check challenge is valid
   function isValidChallenge(Property memory property, bytes challengeInput, Property memory challenge) public {
-    // check challenge is valid
-    // <%= property.statement.isValidChallenge.predicate %>
-    // <%= JSON.stringify(property.statement.isValidChallenge.inputs) %>
+    require(getChild(property, challengeInput) == keccak256(challenge));
+  }
+
+  function getChild(Property memory property, bytes challengeInput) private returns Property {
+    <% if(property.statement.predicate == 'And') { %>
+      <%
+        for(var j = 0;j < property.statement.compiledChildren.length;j++) {
+          var item = property.statement.compiledChildren[j]
+      %>
+      if(challengeInput == <%= j %>) {
+        return {
+          predicate: Not,
+          inputs: [{
+            predicate: <%= item.dec.predicate %>,
+            inputs: [<%=getInputs(item)%>],
+          }]
+        }
+      }
+      <% } %>
+    <% } else if(property.statement.predicate == 'ForAllSuchThat') {
+      const innerProperty = property.statement.compiledChildren[2];
+      %>
+    return {
+      predicate: Not,
+      inputs: [{
+        predicate: <%= innerProperty.dec.predicate %>,
+        inputs: [<%=getInputs(innerProperty)%>],
+      }]
+    }
+    <% } else if(property.statement.predicate == 'Not') {
+      const innerProperty = property.statement.compiledChildren[0];
+      %>
+    return {
+      predicate: <%= innerProperty.dec.predicate %>,
+      inputs: [property.inputs[<%= innerProperty.dec.inputs[0] %>]]
+    }
+    <% } %>
   }
   <% } %>
-
   function decideTrue(Property memory property, bytes[] memory witness) public {
     var propertyHash = keccak256(abi.encode(property))
     // check property is true
     <% if(property.statement.predicate == 'And') { %>
       // check And
-      require(<%= JSON.stringify(property.statement.inputs) %>)
+      <%
+        for(var j = 0;j < property.statement.compiledChildren.length;j++) {
+          var item = property.statement.compiledChildren[j]
+      %>require(UAC.getDecision(<%= item.dec.predicate %>, <%= item.dec.inputs %>))
+      <% } %>
     <% } else if(property.statement.predicate == 'ThereExistsSuchThat') { %>
       // check ThereExistsSuchThat
-      require(<%= JSON.stringify(property.statement.inputs) %>)
+      <%
+        const quantifier = property.statement.inputDefs[0]
+        const innerProperty = property.statement.compiledChildren[2].dec
+      %>
+      require(UAC.getDecision(<%= quantifier.predicate %>, <%= quantifier.inputDefs %>))
+      require(UAC.getDecision(<%= innerProperty.predicate %>, <%= innerProperty.inputs %>))
     <% } else if(property.statement.predicate == 'Or') { %>
       // check Or
-      require(<%= JSON.stringify(property.statement.inputs) %>)
+    var result = false
+      <%
+        for(var j = 0;j < property.statement.compiledChildren.length;j++) {
+          var item = property.statement.compiledChildren[j]
+      %>
+    result = result | UAC.getDecision(<%= item.dec.predicate %>, <%= item.dec.inputs %>)
+      <% } %>
+    require(result)
     <% } else { %>
       var claim = UAC.getDecision(propertyHash)
       assert(propertyHash.disputePeriod > block.now)

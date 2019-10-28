@@ -43,6 +43,7 @@ Decider
   = name:String _ args:Args {
   return {
     predicate: name,
+    inputDefs: args,
     inputs: args
   }
 }
@@ -51,7 +52,7 @@ UniversalQuantifier
   = "for" _ v:String _ "in" _ V:Decider _ "{" _ property:Expression _ "}" {
     return {
       predicate: "ForAllSuchThat",
-      inputs: [
+      inputDefs: [
         V,
         v,
         property
@@ -63,7 +64,7 @@ ThereExistsQuantifier
   = "with" _ Q:Decider _ "as" _ v:String _ "{" _ property:Expression _ "}" {
     return {
       predicate: "ThereExistsSuchThat",
-      inputs: [
+      inputDefs: [
         Q,
         v,
         property
@@ -75,7 +76,7 @@ NotPredicate
   = "!" _ property:Factor {
     return {
       predicate: "Not",
-      inputs: [
+      inputDefs: [
         property
       ]
     }
@@ -89,7 +90,7 @@ Expression
         const items = tail.map((t) => t[3])
         return {
           predicate: op == "and" ? "And" : "Or",
-          inputs: [head].concat(items)
+          inputDefs: [head].concat(items)
         }
       } else {
         return head;

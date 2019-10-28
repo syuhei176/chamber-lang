@@ -1,2 +1,2 @@
 def exit(su) := 
-IncludedAt(su) and !su()
+IncludedAt(su) and !eval(su)

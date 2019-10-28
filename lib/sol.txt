@@ -15,7 +15,15 @@ function getInputs(item) {
   }
   return str
 }
+function isValidChallenge(predicate) {
+  return (
+    predicate == 'ForAllSuchThat' ||
+    predicate == 'Not' ||
+    predicate == 'And'
+  )
+}
 %>
+
 
 <%
   for(var i = 0;i < properties.length;i++) {
@@ -25,7 +33,7 @@ function getInputs(item) {
  * <%= property.dec.predicate %>(<%= property.dec.inputDefs %>)
  */
 contract <%= property.dec.predicate %> {
-  <% if(!!property.statement.isValidChallenge) { %>
+  <% if(isValidChallenge(property.statement.predicate)) { %>
   // check challenge is valid
   function isValidChallenge(Property memory property, bytes challengeInput, Property memory challenge) public {
     require(getChild(property, challengeInput) == keccak256(challenge));
@@ -77,16 +85,23 @@ contract <%= property.dec.predicate %> {
       <%
         for(var j = 0;j < property.statement.compiledChildren.length;j++) {
           var item = property.statement.compiledChildren[j]
-      %>require(UAC.getDecision(<%= item.dec.predicate %>, <%= item.dec.inputs %>))
+      %>
+      require(UAC.getDecision(keccak256(abi.encode({
+          predicate: <%= item.dec.predicate %>,
+          inputs: <%= getInputs(item) %>
+        }))))
       <% } %>
     <% } else if(property.statement.predicate == 'ThereExistsSuchThat') { %>
       // check ThereExistsSuchThat
       <%
-        const quantifier = property.statement.inputDefs[0]
-        const innerProperty = property.statement.compiledChildren[2].dec
+        const quantifier = property.statement.compiledChildren[0]
+        const innerProperty = property.statement.compiledChildren[2]
       %>
-      require(<%= quantifier.predicate %>.decide(<%= quantifier.inputDefs %>))
-      require(UAC.getDecision(<%= innerProperty.predicate %>, <%= innerProperty.inputs %>))
+      require(<%= quantifier.dec.predicate %>.decide(<%= getInputs(quantifier) %>))
+      require(UAC.getDecision(keccak256(abi.encode({
+        predicate: <%= innerProperty.dec.predicate %>,
+        inputs: <%= getInputs(innerProperty) %>
+      }))))
     <% } else if(property.statement.predicate == 'Or') { %>
       // check Or
     var result = false
@@ -94,7 +109,10 @@ contract <%= property.dec.predicate %> {
         for(var j = 0;j < property.statement.compiledChildren.length;j++) {
           var item = property.statement.compiledChildren[j]
       %>
-    result = result | UAC.getDecision(<%= item.dec.predicate %>, <%= item.dec.inputs %>)
+    result = result | UAC.getDecision(keccak256(abi.encode({
+        predicate: <%= item.dec.predicate %>,
+        inputs: <%= getInputs(item) %>
+      })))
       <% } %>
     require(result)
     <% } else { %>

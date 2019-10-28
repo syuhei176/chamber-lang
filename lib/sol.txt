@@ -48,8 +48,10 @@ contract <%= property.dec.predicate %> {
       }
       <% } %>
     <% } else if(property.statement.predicate == 'ForAllSuchThat') {
+      const quantifier = property.statement.inputDefs[0];
       const innerProperty = property.statement.compiledChildren[2];
       %>
+    require(<%= quantifier.predicate %>.decide(<%= quantifier.inputDefs %>, challengeInput))
     return {
       predicate: Not,
       inputs: [{
@@ -83,7 +85,7 @@ contract <%= property.dec.predicate %> {
         const quantifier = property.statement.inputDefs[0]
         const innerProperty = property.statement.compiledChildren[2].dec
       %>
-      require(UAC.getDecision(<%= quantifier.predicate %>, <%= quantifier.inputDefs %>))
+      require(<%= quantifier.predicate %>.decide(<%= quantifier.inputDefs %>))
       require(UAC.getDecision(<%= innerProperty.predicate %>, <%= innerProperty.inputs %>))
     <% } else if(property.statement.predicate == 'Or') { %>
       // check Or

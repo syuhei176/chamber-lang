@@ -7,6 +7,6 @@ def swap(new_owner, prev_owner, c_token, c_range) :=
       and assert(c_su.block_number, block_number)
       and assert(c_su.new_owner, prev_owner)
       and assert(c_su.prev_owner, new_owner)
-      and (IncludedAt(c_su) and SignedBy(tx, owner)) or (!IncludedAt(c_su) and SignedBy(tx, prev_owner))
+      and (IncludedAt(c_su) and SignedBy(tx, new_owner)) or (!IncludedAt(c_su) and SignedBy(tx, prev_owner))
     }
   }

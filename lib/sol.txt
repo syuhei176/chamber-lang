@@ -88,7 +88,7 @@ contract <%= property.dec.predicate %> {
       %>
       require(UAC.getDecision(keccak256(abi.encode({
           predicate: <%= item.dec.predicate %>,
-          inputs: <%= getInputs(item) %>
+          inputs: [<%= getInputs(item) %>]
         }))))
       <% } %>
     <% } else if(property.statement.predicate == 'ThereExistsSuchThat') { %>
@@ -100,7 +100,7 @@ contract <%= property.dec.predicate %> {
       require(<%= quantifier.dec.predicate %>.decide(<%= getInputs(quantifier) %>))
       require(UAC.getDecision(keccak256(abi.encode({
         predicate: <%= innerProperty.dec.predicate %>,
-        inputs: <%= getInputs(innerProperty) %>
+        inputs: [<%= getInputs(innerProperty) %>]
       }))))
     <% } else if(property.statement.predicate == 'Or') { %>
       // check Or
@@ -111,7 +111,7 @@ contract <%= property.dec.predicate %> {
       %>
     result = result | UAC.getDecision(keccak256(abi.encode({
         predicate: <%= item.dec.predicate %>,
-        inputs: <%= getInputs(item) %>
+        inputs: [<%= getInputs(item) %>]
       })))
       <% } %>
     require(result)

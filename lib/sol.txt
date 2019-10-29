@@ -56,10 +56,10 @@ contract <%= property.dec.predicate %> {
       }
       <% } %>
     <% } else if(property.statement.predicate == 'ForAllSuchThat') {
-      const quantifier = property.statement.inputDefs[0];
+      const quantifier = property.statement.compiledChildren[0];
       const innerProperty = property.statement.compiledChildren[2];
       %>
-    require(<%= quantifier.predicate %>.decide(<%= quantifier.inputDefs %>, challengeInput))
+    require(<%= quantifier.dec.predicate %>.decide(<%=getInputs(quantifier)%>, challengeInput))
     return {
       predicate: Not,
       inputs: [{

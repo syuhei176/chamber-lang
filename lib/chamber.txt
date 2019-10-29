@@ -84,7 +84,6 @@ NotPredicate
 
 Expression
   = head:Factor tail:(_ ("and" / "or") _ Factor)* {
-      console.log(tail)
       if(tail.length > 0) {
         const op = tail[0][1]
         const items = tail.map((t) => t[3])

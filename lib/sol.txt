@@ -117,7 +117,7 @@ contract <%= property.dec.predicate %> {
     require(result)
     <% } else { %>
       var claim = UAC.getDecision(propertyHash)
-      assert(propertyHash.disputePeriod > block.now)
+      assert(propertyHash.disputePeriod > block.number)
     <% } %>
     UAC.decide(propertyHash, true)
   }

@@ -1,13 +1,13 @@
 pragma solidity ^0.4.24;
 
 <%
-function getInputs(item) {
+function getInputs(item, witnessName) {
   let str = ""
   for(var k=0;k < item.dec.inputs.length;k++){
     if(item.dec.inputs[k] >= 0) {
       str += "property.inputs[" + item.dec.inputs[k] + "]"
     }else{
-      str += "challengeInput"
+      str += witnessName || "challengeInput"
     }
     if(k < item.dec.inputs.length - 1) {
       str += ","
@@ -77,7 +77,7 @@ contract <%= property.dec.predicate %> {
     <% } %>
   }
   <% } %>
-  function decideTrue(Property memory property, bytes[] memory witness) public {
+  function decideTrue(Property memory property, bytes memory witness) public {
     var propertyHash = keccak256(abi.encode(property))
     // check property is true
     <% if(property.statement.predicate == 'And') { %>
@@ -88,7 +88,7 @@ contract <%= property.dec.predicate %> {
       %>
       require(UAC.getDecision(keccak256(abi.encode({
           predicate: <%= item.dec.predicate %>,
-          inputs: [<%= getInputs(item) %>]
+          inputs: [<%= getInputs(item, "witness") %>]
         }))))
       <% } %>
     <% } else if(property.statement.predicate == 'ThereExistsSuchThat') { %>
@@ -97,10 +97,10 @@ contract <%= property.dec.predicate %> {
         const quantifier = property.statement.compiledChildren[0]
         const innerProperty = property.statement.compiledChildren[2]
       %>
-      require(<%= quantifier.dec.predicate %>.decide(<%= getInputs(quantifier) %>))
+      require(<%= quantifier.dec.predicate %>.decide(<%= getInputs(quantifier, "witness") %>, witness))
       require(UAC.getDecision(keccak256(abi.encode({
         predicate: <%= innerProperty.dec.predicate %>,
-        inputs: [<%= getInputs(innerProperty) %>]
+        inputs: [<%= getInputs(innerProperty, "witness") %>]
       }))))
     <% } else if(property.statement.predicate == 'Or') { %>
       // check Or
@@ -117,7 +117,7 @@ contract <%= property.dec.predicate %> {
     require(result)
     <% } else { %>
       var claim = UAC.getDecision(propertyHash)
-      assert(propertyHash.disputePeriod > block.now)
+      assert(propertyHash.disputePeriod > block.number)
     <% } %>
     UAC.decide(propertyHash, true)
   }

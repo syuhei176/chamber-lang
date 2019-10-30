@@ -1,4 +1,6 @@
 const CodeMirror = require('codemirror')
+require('codemirror/mode/javascript/javascript')
+require('codemirror/mode/python/python')
 require('codemirror/lib/codemirror.css')
 require('codemirror/theme/abcdef.css')
 require('codemirror/theme/ttcn.css')
@@ -28,12 +30,14 @@ function main() {
   codearea.textContent = examples.checkpoint
   const inputArea = CodeMirror.fromTextArea(codearea, {
     lineNumbers: true,
-    theme: 'ttcn'
+    theme: 'ttcn',
+    mode: 'python'
   })
   const outputArea = CodeMirror.fromTextArea(solidity, {
     lineNumbers: true,
     theme: 'abcdef',
-    readOnly: true
+    readOnly: true,
+    mode: 'javascript'
   })
   inputArea.on('change', function(instance) {
     try {

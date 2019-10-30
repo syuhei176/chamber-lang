@@ -44,7 +44,11 @@ function main() {
       compile(instance)
     } catch (e) {
       console.error(e)
-      messageDom.innerText = 'parse error'
+      messageDom.innerText =
+        'parse error at line ' +
+        e.location.start.line +
+        ' column ' +
+        e.location.start.column
     }
   })
   compile(inputArea)

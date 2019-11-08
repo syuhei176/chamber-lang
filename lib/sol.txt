@@ -1,4 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
+pragma experimental ABIEncoderV2;
+
+import {DataTypes as types} from "./DataTypes.sol";
 
 <%
 function getInputs(item, witnessName) {
@@ -39,7 +42,7 @@ contract <%= property.dec.predicate %> {
     require(getChild(property, challengeInput) == keccak256(challenge));
   }
 
-  function getChild(Property memory property, bytes challengeInput) private returns Property {
+  function getChild(Property memory property, bytes challengeInput) private returns (types.Property) {
     <% if(property.statement.predicate == 'And') { %>
       <%
         for(var j = 0;j < property.statement.compiledChildren.length;j++) {
@@ -59,7 +62,7 @@ contract <%= property.dec.predicate %> {
       const quantifier = property.statement.compiledChildren[0];
       const innerProperty = property.statement.compiledChildren[2];
       %>
-    require(<%= quantifier.dec.predicate %>.decide(<%=getInputs(quantifier)%>, challengeInput))
+    require(<%= quantifier.dec.predicate %>.decide(<%=getInputs(quantifier)%>, challengeInput));
     return {
       predicate: Not,
       inputs: [{
